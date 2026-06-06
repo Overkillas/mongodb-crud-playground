@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POC MongoDB: CRUD Didático</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>🍃 POC MongoDB <span class="sub">CRUD didático: cada ação mostra a sintaxe</span></h1>
+    <div id="status" class="status">conectando…</div>
+  </header>
+
+  <div id="toast" class="toast"></div>
+
+  <main>
+    <!-- COLUNA ESQUERDA: collections + seeds -->
+    <aside class="sidebar">
+      <section class="card">
+        <h2>Dados de exemplo</h2>
+        <p class="hint">Carregue um dos sistemas do trabalho (item 6):</p>
+        <div id="seedButtons" class="seed-buttons"></div>
+      </section>
+
+      <section class="card">
+        <h2>Collections</h2>
+        <div class="row">
+          <input id="novaCollection" placeholder="nome da collection" />
+          <button id="btnCriarCollection">Criar</button>
+        </div>
+        <ul id="listaCollections" class="lista-collections"></ul>
+      </section>
+    </aside>
+
+    <!-- COLUNA CENTRAL: documentos -->
+    <section class="conteudo">
+      <div class="card">
+        <div class="conteudo-header">
+          <div class="titulo-linha">
+            <h2 id="tituloCollection">Selecione uma collection</h2>
+            <button id="btnIrInserir" class="ghost small">＋ Adicionar documento</button>
+          </div>
+          <div class="row">
+            <input id="filtro" placeholder='filtro JSON (vazio = todos), ex: {"autor":"ana"}' />
+            <button id="btnFiltrar">Buscar (find)</button>
+            <button id="btnLimparFiltro" class="ghost">Limpar</button>
+          </div>
+        </div>
+        <div id="documentos" class="documentos"></div>
+      </div>
+
+      <div class="card" id="cardInserir">
+        <h2>Inserir documento (JSON)</h2>
+        <textarea id="novoDoc" rows="6" placeholder='{"campo": "valor"}'></textarea>
+        <button id="btnInserir">Inserir (insertOne)</button>
+      </div>
+
+      <div class="card">
+        <h2>Agregação <span class="hint">(analytics, equivalente ao GROUP BY)</span></h2>
+        <textarea id="pipeline" rows="5" placeholder='[{"$group": {...}}]'></textarea>
+        <button id="btnAgregar">Rodar (aggregate)</button>
+        <div id="resultadoAgg" class="agg-result"></div>
+      </div>
+    </section>
+
+    <!-- COLUNA DIREITA: PAINEL DE SINTAXE (o coração didático) -->
+    <aside class="painel-sintaxe">
+      <div class="card sticky">
+        <h2>📜 Sintaxe da última operação</h2>
+        <p id="sxLabel" class="sx-label">Faça uma operação para ver o comando aqui.</p>
+
+        <div class="sx-bloco mongo">
+          <div class="sx-tag">MongoDB</div>
+          <pre id="sxMongo">...</pre>
+        </div>
+
+        <div class="sx-bloco sql">
+          <div class="sx-tag">SQL equivalente</div>
+          <pre id="sxSql">...</pre>
+        </div>
+
+        <div id="sxNota" class="sx-nota"></div>
+      </div>
+    </aside>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>

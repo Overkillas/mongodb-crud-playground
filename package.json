@@ -1,0 +1,14 @@
+{
+  "name": "poc-mongodb",
+  "version": "1.0.0",
+  "description": "POC didática de MongoDB: CRUD por interface mostrando a sintaxe equivalente (MongoDB x SQL)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0"
+  }
+}
