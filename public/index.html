@@ -67,20 +67,10 @@
     <!-- COLUNA DIREITA: PAINEL DE SINTAXE (o coração didático) -->
     <aside class="painel-sintaxe">
       <div class="card sticky">
-        <h2>📜 Sintaxe da última operação</h2>
-        <p id="sxLabel" class="sx-label">Faça uma operação para ver o comando aqui.</p>
-
-        <div class="sx-bloco mongo">
-          <div class="sx-tag">MongoDB</div>
-          <pre id="sxMongo">...</pre>
+        <h2>📜 Sintaxe das últimas 3 operações</h2>
+        <div id="sxHistorico" class="sx-historico">
+          <p class="sx-label">Faça uma operação para ver o comando aqui.</p>
         </div>
-
-        <div class="sx-bloco sql">
-          <div class="sx-tag">SQL equivalente</div>
-          <pre id="sxSql">...</pre>
-        </div>
-
-        <div id="sxNota" class="sx-nota"></div>
       </div>
     </aside>
   </main>

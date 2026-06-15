@@ -2,6 +2,7 @@
 // PAINEL DE SINTAXE (objetivo didático: ver o comando MongoDB x SQL).
 
 let collectionAtual = null;
+let historicoSintaxe = [];
 
 const $ = (id) => document.getElementById(id);
 
@@ -36,13 +37,35 @@ async function api(metodo, url, body) {
   return data;
 }
 
+function esc(texto) {
+  return String(texto ?? "").replace(/[&<>"']/g, (c) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;",
+  }[c]));
+}
+
 // Atualiza o painel de sintaxe com o objeto {mongo, sql, nota} da API.
 function mostrarSintaxe(label, syntax) {
-  $("sxLabel").textContent = label;
-  $("sxLabel").style.fontStyle = "normal";
-  $("sxMongo").textContent = syntax?.mongo || "...";
-  $("sxSql").textContent = syntax?.sql || "...";
-  $("sxNota").textContent = syntax?.nota || "";
+  historicoSintaxe = [{ label, syntax }, ...historicoSintaxe].slice(0, 3);
+  $("sxHistorico").innerHTML = historicoSintaxe
+    .map(({ label: itemLabel, syntax: itemSyntax }) => `
+      <div class="sx-item">
+        <p class="sx-label">${esc(itemLabel)}</p>
+        <div class="sx-bloco mongo">
+          <div class="sx-tag">MongoDB</div>
+          <pre>${esc(itemSyntax?.mongo || "...")}</pre>
+        </div>
+        <div class="sx-bloco sql">
+          <div class="sx-tag">SQL equivalente</div>
+          <pre>${esc(itemSyntax?.sql || "...")}</pre>
+        </div>
+        <div class="sx-nota">${esc(itemSyntax?.nota || "")}</div>
+      </div>
+    `)
+    .join("");
 }
 
 // --- Status da conexão ------------------------------------------------------
@@ -76,7 +99,7 @@ async function seed(chave) {
   const r = await api("POST", `/api/seed/${chave}`);
   mostrarSintaxe(`Seed carregado: ${r.inseridos} documentos em "${r.collection}"`, r.syntax);
   toast(`Carregados ${r.inseridos} documentos em "${r.collection}"`);
-  await selecionarCollection(r.collection);
+  await selecionarCollection(r.collection, false);
   // pré-preenche a agregação de exemplo do preset
   if (r.agregacao) {
     $("pipeline").value = JSON.stringify(r.agregacao.pipeline, null, 2);
@@ -84,9 +107,9 @@ async function seed(chave) {
 }
 
 // --- Collections ------------------------------------------------------------
-async function listarCollections() {
+async function listarCollections(registrarSintaxe = true) {
   const r = await api("GET", "/api/collections");
-  mostrarSintaxe("Listar collections", r.syntax);
+  if (registrarSintaxe) mostrarSintaxe("Listar collections", r.syntax);
   const ul = $("listaCollections");
   ul.innerHTML = "";
   if (r.collections.length === 0) {
@@ -121,7 +144,7 @@ async function criarCollection() {
   mostrarSintaxe(`Collection "${nome}" criada`, r.syntax);
   toast(`Collection "${nome}" criada`);
   $("novaCollection").value = "";
-  await listarCollections();
+  await listarCollections(false);
 }
 
 async function dropCollection(nome) {
@@ -134,19 +157,19 @@ async function dropCollection(nome) {
     $("tituloCollection").textContent = "Selecione uma collection";
     $("documentos").innerHTML = "";
   }
-  await listarCollections();
+  await listarCollections(false);
 }
 
 // --- Documentos -------------------------------------------------------------
-async function selecionarCollection(nome) {
+async function selecionarCollection(nome, registrarBusca = true) {
   collectionAtual = nome;
   $("tituloCollection").textContent = `Collection: ${nome}`;
   $("filtro").value = ""; // limpa filtro ao trocar: evita travar a navegação
-  await listarDocumentos();
-  await listarCollections(); // re-render para marcar a ativa
+  await listarDocumentos(registrarBusca);
+  await listarCollections(false); // re-render para marcar a ativa
 }
 
-async function listarDocumentos() {
+async function listarDocumentos(registrarSintaxe = true) {
   if (!collectionAtual) {
     return toast("Selecione uma collection primeiro (lista à esquerda).", "erro");
   }
@@ -162,7 +185,7 @@ async function listarDocumentos() {
     url += `?filter=${encodeURIComponent(filtroTxt)}`;
   }
   const r = await api("GET", url);
-  mostrarSintaxe(`Buscar documentos em "${collectionAtual}"`, r.syntax);
+  if (registrarSintaxe) mostrarSintaxe(`Buscar documentos em "${collectionAtual}"`, r.syntax);
 
   const cont = $("documentos");
   cont.innerHTML = "";
@@ -198,7 +221,8 @@ async function inserirDocumento() {
   mostrarSintaxe(`Documento inserido em "${collectionAtual}"`, r.syntax);
   toast("Documento inserido");
   $("novoDoc").value = "";
-  await listarDocumentos();
+  await listarDocumentos(false);
+  await listarCollections(false);
 }
 
 async function editarDocumento(id, doc) {
@@ -218,7 +242,7 @@ async function editarDocumento(id, doc) {
   const r = await api("PUT", `/api/collections/${collectionAtual}/documents/${id}`, changes);
   mostrarSintaxe(`Documento ${id} atualizado`, r.syntax);
   toast("Documento atualizado");
-  await listarDocumentos();
+  await listarDocumentos(false);
 }
 
 async function excluirDocumento(id) {
@@ -226,7 +250,8 @@ async function excluirDocumento(id) {
   const r = await api("DELETE", `/api/collections/${collectionAtual}/documents/${id}`);
   mostrarSintaxe(`Documento ${id} removido`, r.syntax);
   toast("Documento removido");
-  await listarDocumentos();
+  await listarDocumentos(false);
+  await listarCollections(false);
 }
 
 // --- Agregação --------------------------------------------------------------
@@ -267,5 +292,5 @@ $("btnIrInserir").onclick = irParaInserir;
 safe(async function init() {
   await checarStatus();
   await carregarSeeds();
-  await listarCollections();
+  await listarCollections(false);
 })();

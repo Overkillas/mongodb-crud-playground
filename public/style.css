@@ -121,7 +121,17 @@ button.small { padding: 5px 10px; font-size: 13px; }
 /* Painel de sintaxe */
 .sticky { position: sticky; top: 16px; }
 .sx-label { color: var(--muted); font-style: italic; margin: 0 0 14px; }
+.sx-historico { display: flex; flex-direction: column; gap: 14px; }
+.sx-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(255,255,255,.02);
+}
+.sx-item:first-child { border-color: rgba(0, 237, 100, .45); }
+.sx-item .sx-label { font-style: normal; margin-bottom: 10px; }
 .sx-bloco { margin-bottom: 14px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.sx-item .sx-bloco:last-of-type { margin-bottom: 10px; }
 .sx-tag { font-size: 12px; font-weight: 700; padding: 5px 10px; letter-spacing: .5px; }
 .sx-bloco.mongo .sx-tag { background: #06241a; color: var(--mongo); }
 .sx-bloco.sql .sx-tag { background: #102640; color: var(--sql); }
